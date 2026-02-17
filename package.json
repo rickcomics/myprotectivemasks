@@ -1,0 +1,22 @@
+{
+  "name": "mymasks",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bot.js",
+  "scripts": {
+    "run": "node bot.js",
+    "check-grammy": "npm outdated grammy",
+    "update-grammy": "npm install grammy@latest",
+    "upgrade-grammy": "npm outdated grammy && npm install grammy@latest",
+    "update-all": "npm update",
+    "check-updates": "npm outdated"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "grammy": "~1.40.0"
+  }
+}
+
