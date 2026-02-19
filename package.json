@@ -1,11 +1,10 @@
 {
-  "name": "mymasks",
+  "name": "myprotectivemasks",
   "version": "1.0.0",
   "description": "Telegram bot my protective masks",
   "main": "bot.js",
   "scripts": {
     "start": "node bot.js",
-    "dev": "node bot.js",
     "check-updates": "npm outdated"
   },
   "keywords": ["telegram", "bot", "grammy"],

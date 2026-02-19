@@ -324,42 +324,46 @@ bot.catch((err, ctx) => {
   );
 });
 
-// Настройка Express-сервера для Webhooks
+// Настройка Express-сервера
 const app = express();
 app.use(express.json());
 
-// Эндпоинт для мониторинга
+// Эндпоинт для мониторинга (обязателен для Render.com)
 app.get('/', (req, res) => {
   res.status(200).send('Bot is running');
 });
 
-// Эндпоинт /health для мониторинга
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Основной эндпоинт для Webhook Telegram
+// Эндпоинт для Webhook Telegram
 app.post(`/${process.env.BOT_API_KEY}`, async (req, res) => {
   await bot.handleUpdate(req.body, res);
   res.sendStatus(200);
 });
 
-const PORT = process.env.PORT || 667;
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, async () => {
   console.log(`Бот запущен на порту ${PORT}`);
 
-  // Устанавливаем Webhook один раз при старте
+  // Устанавливаем Webhook только если он не установлен
   try {
-    const webhookUrl = `${process.env.RENDER_EXTERNAL_URL}/${process.env.BOT_API_KEY}`;
-    await bot.api.setWebhook(webhookUrl);
-    console.log('Webhook установлен:', webhookUrl);
+    const webhookInfo = await bot.api.getWebhookInfo();
+    if (webhookInfo.url === '') {
+      const webhookUrl = `${process.env.RENDER_EXTERNAL_URL}/${process.env.BOT_API_KEY}`;
+      await bot.api.setWebhook(webhookUrl);
+      console.log('Webhook установлен:', webhookUrl);
+    } else {
+      console.log('Webhook уже установлен:', webhookInfo.url);
+    }
   } catch (error) {
     console.error('Ошибка установки Webhook:', error);
   }
 });
 
-// Обработчик graceful shutdown
+// Graceful shutdown
 process.on('SIGTERM', async () => {
   console.log('Получен SIGTERM, отключаем Webhook...');
   await bot.api.deleteWebhook();
