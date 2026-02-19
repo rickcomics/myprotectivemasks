@@ -348,24 +348,22 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
   console.log(`Бот запущен на порту ${PORT}`);
 
-  // Устанавливаем Webhook только если он не установлен
+  // Проверяем существующий Webhook перед установкой
   try {
     const webhookInfo = await bot.api.getWebhookInfo();
-    if (webhookInfo.url === '') {
+
+    if (!webhookInfo.url) {
+      // Если Webhook не установлен, устанавливаем его
       const webhookUrl = `${process.env.RENDER_EXTERNAL_URL}/${process.env.BOT_API_KEY}`;
       await bot.api.setWebhook(webhookUrl);
       console.log('Webhook установлен:', webhookUrl);
     } else {
-      console.log('Webhook уже установлен:', webhookInfo.url);
+      console.log('Webhook уже активен:', webhookInfo.url);
     }
   } catch (error) {
-    console.error('Ошибка установки Webhook:', error);
+    console.error('Ошибка при проверке/установке Webhook:', error);
   }
 });
 
-// Graceful shutdown
-process.on('SIGTERM', async () => {
-  console.log('Получен SIGTERM, отключаем Webhook...');
-  await bot.api.deleteWebhook();
-  process.exit(0);
-});
+// Убираем обработчик SIGTERM — пусть Render.com управляет перезапусками
+// process.on('SIGTERM', async () => { ... });
