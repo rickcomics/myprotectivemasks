@@ -1,4 +1,25 @@
-'use strict'
+const express = require('express');
+const app = express();
+
+const PORT = process.env.PORT || 667;
+
+// Эндпоинт для мониторинга
+app.get('/', (req, res) => {
+  res.status(200).send('Bot is running');
+});
+
+// Можно добавить эндпоинт /health для более явного мониторинга
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+app.listen(PORT, () => {
+  console.log(`Бот запущен (порт ${PORT})`);
+});
+
+// Ваш код бота (polling)
+// ...
+
 
 require('dotenv').config();
 const { Bot, Keyboard } = require('grammy');
