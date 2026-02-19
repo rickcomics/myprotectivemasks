@@ -1,29 +1,8 @@
-const express = require('express');
-const app = express();
-
-const PORT = process.env.PORT || 667;
-
-// Эндпоинт для мониторинга
-app.get('/', (req, res) => {
-  res.status(200).send('Bot is running');
-});
-
-// Можно добавить эндпоинт /health для более явного мониторинга
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-
-app.listen(PORT, () => {
-  console.log(`Бот запущен (порт ${PORT})`);
-});
-
-// Ваш код бота (polling)
-// ...
-
-
 require('dotenv').config();
 const { Bot, Keyboard } = require('grammy');
+const express = require('express');
 
+// Инициализация бота
 const bot = new Bot(process.env.BOT_API_KEY);
 
 // 0. Логирование
@@ -345,7 +324,44 @@ bot.catch((err, ctx) => {
   );
 });
 
-// 15. Запуск бота
-bot.start();
+// Настройка Express-сервера для Webhooks
+const app = express();
+app.use(express.json());
 
-console.log('Бот запущен. Ожидание сообщений...');
+// Эндпоинт для мониторинга
+app.get('/', (req, res) => {
+  res.status(200).send('Bot is running');
+});
+
+// Эндпоинт /health для мониторинга
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Основной эндпоинт для Webhook Telegram
+app.post(`/${process.env.BOT_API_KEY}`, async (req, res) => {
+  await bot.handleUpdate(req.body, res);
+  res.sendStatus(200);
+});
+
+const PORT = process.env.PORT || 667;
+
+app.listen(PORT, async () => {
+  console.log(`Бот запущен на порту ${PORT}`);
+
+  // Устанавливаем Webhook один раз при старте
+  try {
+    const webhookUrl = `${process.env.RENDER_EXTERNAL_URL}/${process.env.BOT_API_KEY}`;
+    await bot.api.setWebhook(webhookUrl);
+    console.log('Webhook установлен:', webhookUrl);
+  } catch (error) {
+    console.error('Ошибка установки Webhook:', error);
+  }
+});
+
+// Обработчик graceful shutdown
+process.on('SIGTERM', async () => {
+  console.log('Получен SIGTERM, отключаем Webhook...');
+  await bot.api.deleteWebhook();
+  process.exit(0);
+});

@@ -1,22 +1,22 @@
 {
   "name": "mymasks",
   "version": "1.0.0",
-  "description": "",
+  "description": "Telegram bot my protective masks",
   "main": "bot.js",
   "scripts": {
-    "run": "node bot.js",
-    "check-grammy": "npm outdated grammy",
-    "update-grammy": "npm install grammy@latest",
-    "upgrade-grammy": "npm outdated grammy && npm install grammy@latest",
-    "update-all": "npm update",
+    "start": "node bot.js",
+    "dev": "node bot.js",
     "check-updates": "npm outdated"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["telegram", "bot", "grammy"],
+  "author": "rickc",
   "license": "ISC",
   "dependencies": {
     "dotenv": "^17.3.1",
-    "express": "^5.2.1",
+    "express": "^4.18.2",
     "grammy": "~1.40.0"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }
