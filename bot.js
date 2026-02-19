@@ -339,8 +339,15 @@ app.get('/health', (req, res) => {
 
 // Эндпоинт для Webhook Telegram
 app.post(`/${process.env.BOT_API_KEY}`, async (req, res) => {
-  await bot.handleUpdate(req.body, res);
-  res.sendStatus(200);
+  try {
+    // Инициализируем бота перед обработкой обновления
+    await bot.init();
+    await bot.handleUpdate(req.body, res);
+    res.sendStatus(200);
+  } catch (error) {
+    console.error('Ошибка обработки Webhook:', error);
+    res.sendStatus(500);
+  }
 });
 
 const PORT = process.env.PORT || 3000;
@@ -364,6 +371,3 @@ app.listen(PORT, async () => {
     console.error('Ошибка при проверке/установке Webhook:', error);
   }
 });
-
-// Убираем обработчик SIGTERM — пусть Render.com управляет перезапусками
-// process.on('SIGTERM', async () => { ... });
